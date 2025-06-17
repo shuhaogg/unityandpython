@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/A-Scenes/1-login.unity
+    guid: 680c2253bd88f1a4294cdcbb5bc5ddde
+  - enabled: 1
+    path: Assets/A-Scenes/Graph.unity
+    guid: 09683efeb82205149813d2cae06c60ec
+  - enabled: 1
+    path: Assets/A-Scenes/ActiveTraining.unity
+    guid: abfcdc3ffef76d44fbfd215df0390bd6
+  - enabled: 1
+    path: Assets/A-Scenes/MainMenu.unity
+    guid: 11c881ee92de57b4491dba3abca5b6f8
+  - enabled: 1
+    path: Assets/A-Scenes/IMU.unity
+    guid: 50148d5ff9a92224c8d704c055bee1eb
+  - enabled: 1
+    path: Assets/A-Scenes/Xchart-demo.unity
+    guid: cd9561a9577ff4b40a31fa2d5e81c82f
+  - enabled: 1
+    path: Assets/A-Scenes/sEMG.unity
+    guid: a4a6e4db3692c9643895ea61f805d75d
+  - enabled: 1
+    path: Assets/NewProject/GameSnake/Scenes/Snake.unity
+    guid: 2b3336d933c5b504dac87d8f962b088a
+  - enabled: 1
+    path: Assets/A-Scenes/Scenes/Computer.unity
+    guid: fd256a94ce2aa234ea740b659c36dc4e
+  - enabled: 1
+    path: Assets/A-Scenes/Scenes/Main Menu.unity
+    guid: c4fa4c0a894a06642ad6bb7a9348b61a
+  - enabled: 1
+    path: Assets/A-Scenes/Scenes/Passive Training.unity
+    guid: 3dec4c56e7a9fb246a8f795f4d26b41b
+  - enabled: 1
+    path: Assets/A-Scenes/Scenes/Play demo.unity
+    guid: d22c880e509518542bf2a1d53e7ef2e7
+  - enabled: 1
+    path: Assets/A-Scenes/Scenes/Resistance.unity
+    guid: 6f51cccd52f197c4a99a1be199d54023
+  - enabled: 1
+    path: Assets/A-Scenes/Scenes/Active Training.unity
+    guid: 597699057f867d548be50e2dd613e8fe
+  - enabled: 1
+    path: Assets/NewProject/GameSnake/Scenes/StartSnake.unity
+    guid: 3705be0f0fbff3445a9783e11c520dab
+  - enabled: 1
+    path: Assets/NewProject/GameRussiabox/Russia.unity
+    guid: 403aceec2a3423f45a03df56a47fb433
+  - enabled: 1
+    path: Assets/NewProject/GameMouse/Scenes/Mouse.unity
+    guid: 96b10af2737d94c508cd71e3a0253f78
+  m_configObjects: {}
