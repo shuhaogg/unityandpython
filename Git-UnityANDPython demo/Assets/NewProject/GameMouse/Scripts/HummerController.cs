@@ -4,6 +4,8 @@ using System.Threading;
 using NetMQ;
 using NetMQ.Sockets;
 using UnityEngine.UI;
+using static System.Net.Mime.MediaTypeNames;
+using System.Diagnostics;
 
 [System.Serializable]
 public class Coord
@@ -14,8 +16,8 @@ public class Coord
 public class HummerController : MonoBehaviour
 {
     [Header("Physical workspace bounds (mm)")]
-    public float minX = 300f, maxX = 600f;
-    public float minY = -200f, maxY = 200f;
+    public float minX = 200f, maxX = 300f;
+    public float minY = -100f, maxY = 100f;
 
     [Header("Effects")]
     public GameObject particle;
@@ -29,7 +31,7 @@ public class HummerController : MonoBehaviour
     public RectTransform crosshairUI;    // 新增：UI 上的准星
 
     [Header("Debug UI (optional)")]
-    public Text debugText;
+    public UnityEngine.UI.Text debugText;
 
     [HideInInspector]
     public Vector3 calposition;
@@ -61,7 +63,7 @@ public class HummerController : MonoBehaviour
             {
                 string msg = subSocket.ReceiveFrameString();
                 recvCoord = JsonUtility.FromJson<Coord>(msg);
-                Debug.Log($"[ZeroMQ RX] x={recvCoord.x:F1}, y={recvCoord.y:F1}, z={recvCoord.z:F1}");
+                UnityEngine.Debug.Log($"[ZeroMQ RX] x={recvCoord.x:F1}, y={recvCoord.y:F1}, z={recvCoord.z:F1}");
             }
             catch { }
         }
@@ -88,8 +90,8 @@ public class HummerController : MonoBehaviour
         float normY = Mathf.InverseLerp(minY, maxY, recvCoord.y);
 
         // 3. 再映射到屏幕像素（假设 Canvas 是全屏 Overlay）  
-        float screenX = normX * Screen.width;
-        float screenY = normY * Screen.height;
+        float screenX = (1f - normY) * Screen.width;
+        float screenY = (1f - normX) * Screen.height;
 
         calposition = new Vector3(screenX, screenY, 0) + bias;
 
@@ -98,7 +100,7 @@ public class HummerController : MonoBehaviour
             crosshairUI.position = calposition;
 
         // 可视化调试：Console 或屏幕文本
-        Debug.Log($"[Frame] recvCoord=({recvCoord.x:F1},{recvCoord.y:F1},{recvCoord.z:F1}), calpos=({calposition.x:F1},{calposition.y:F1})");
+        UnityEngine.Debug.Log($"[Frame] recvCoord=({recvCoord.x:F1},{recvCoord.y:F1},{recvCoord.z:F1}), calpos=({calposition.x:F1},{calposition.y:F1})");
         if (debugText != null)
             debugText.text = $"Crosshair: {calposition.x:F0},{calposition.y:F0}";
 

@@ -4556,6 +4556,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4525c58196c14ec5bff85828d22d2e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  minX: 200
+  maxX: 600
+  minY: -200
+  maxY: 200
   particle: {fileID: 1389287588518262, guid: f41c04002d868471b8f604ade0e24315, type: 3}
   hitSE: {fileID: 8300000, guid: 5af6899d6e0154eb08fad40a56de5381, type: 3}
   MouseCamera: {fileID: 560084426}
