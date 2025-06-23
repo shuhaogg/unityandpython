@@ -1,43 +1,42 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class UnityMainThreadDispatcher : MonoBehaviour
 {
-    private static readonly Queue<Action> _executionQueue = new Queue<Action>();
+    private static readonly Queue<Action> executionQueue = new Queue<Action>();
+    public static UnityMainThreadDispatcher Instance { get; private set; }
 
-    private static UnityMainThreadDispatcher _instance;
-    public static UnityMainThreadDispatcher Instance
+    void Awake()
     {
-        get
+        if (Instance == null)
         {
-            if (_instance == null)
-            {
-                GameObject obj = new GameObject("UnityMainThreadDispatcher");
-                _instance = obj.AddComponent<UnityMainThreadDispatcher>();
-                DontDestroyOnLoad(obj);
-            }
-            return _instance;
+            Instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
         }
     }
 
     void Update()
     {
-        lock (_executionQueue)
+        lock (executionQueue)
         {
-            while (_executionQueue.Count > 0)
+            while (executionQueue.Count > 0)
             {
-                _executionQueue.Dequeue().Invoke();
+                executionQueue.Dequeue()?.Invoke();
             }
         }
     }
 
     public void Enqueue(Action action)
     {
-        lock (_executionQueue)
+        if (action == null) return;
+        lock (executionQueue)
         {
-            _executionQueue.Enqueue(action);
+            executionQueue.Enqueue(action);
         }
     }
 }
