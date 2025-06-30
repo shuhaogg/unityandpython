@@ -40,6 +40,6 @@ public class CameraController : MonoBehaviour
             //因为localRotation是属性，我们还要给他赋值
             transform.localRotation = Quaternion.Euler(xRotation, 0, 0);
         }
-        
+
     }
 }

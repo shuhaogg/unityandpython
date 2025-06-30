@@ -37,6 +37,22 @@ public class PythonCommandSender : MonoBehaviour
     {
         SendCommandToPython("disable_motor");
     }
+    public void SendSelectAction(string actionName)
+    {
+        if (!string.IsNullOrEmpty(actionName))
+        {
+            SendCommandToPython($"select_action:{actionName}");
+        }
+        else
+        {
+            Debug.LogWarning("[ZMQ] 动作名称为空，无法发送 select_action");
+        }
+    }
+    public void SendStartPasstrain()
+    {
+        SendCommandToPython("start_passtrain");
+    }
+
 
     private void SendCommandToPython(string command)
     {
