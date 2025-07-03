@@ -15,6 +15,9 @@ EditorBuildSettings:
     path: Assets/A-Scenes/ActiveTraining.unity
     guid: abfcdc3ffef76d44fbfd215df0390bd6
   - enabled: 1
+    path: Assets/Scenes/Gamescene/MainScene.unity
+    guid: da0add74b3c72c84b87ad2de3d9c774b
+  - enabled: 1
     path: Assets/A-Scenes/MainMenu.unity
     guid: 11c881ee92de57b4491dba3abca5b6f8
   - enabled: 1

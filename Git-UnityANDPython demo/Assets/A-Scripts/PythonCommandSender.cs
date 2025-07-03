@@ -50,7 +50,7 @@ public class PythonCommandSender : MonoBehaviour
     }
     public void SendStartPasstrain()
     {
-        SendCommandToPython("start_passtrain");
+        SendCommandToPython("start_passive_training");
     }
 
 
