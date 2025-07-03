@@ -173,7 +173,7 @@ class MyWindow(QMainWindow):
         except Exception as e:
             print(f"[ZMQ] 发送状态出错: {e}")
 
-#新增新方法监听unity
+    #新增新方法监听unity
     def listen_for_unity_command(self):
         print("[ZMQ] 命令接收线程已启动")
         while True:
@@ -181,7 +181,56 @@ class MyWindow(QMainWindow):
                 message = self.command_socket.recv_string()
                 print(f"[ZMQ] 收到Unity命令: {message}")
 
-                if message == "start_teaching":
+                # 处理Unity发送的动作选择命令（核心修改）
+                if message.startswith("select_action:"):
+                    # 从命令中提取动作名称（如"movement2"）
+                    action_name = message.split(":")[1].strip()
+                    print(f"[Unity] 选择的动作名称: {action_name}")
+
+                    # ① 找到动作名称对应的CSV文件路径
+                    # 遍历self.csv_address（在FileCheck中初始化，存储了所有动作的名称和路径）
+                    target_path = None
+                    for name, path in self.csv_address:
+                        if name == action_name:  # 匹配动作名称
+                            target_path = path
+                            break
+
+                    if target_path is None:
+                        # 动作不存在时的错误处理
+                        error_msg = f"动作'{action_name}'不存在，请检查名称是否正确"
+                        self.command_socket.send_string(error_msg)
+                        self.update_unity_status(feedback=error_msg)
+                        continue
+
+                    # ② 手动设置当前选中的动作，模拟UI操作
+                    # （根据当前Tab页，模拟用户在UI上选择了该动作）
+                    if self.tabWidget.currentIndex() == 0:  # 被动训练Tab
+                        # 模拟在listWidget中选中该动作
+                        # 找到listWidget中对应的项并选中
+                        for i in range(self.movement_show.count()):
+                            item = self.movement_show.item(i)
+                            if item.text() == action_name:
+                                self.movement_show.setCurrentItem(item)
+                                break
+                    else:  # 主动训练Tab
+                        # 模拟在comboBox中选中该动作
+                        for i in range(self.movement.count()):
+                            if self.movement.itemText(i) == action_name:
+                                self.movement.setCurrentIndex(i)
+                                break
+
+                    # ③ 调用MovementSelect方法，加载动作数据
+                    self.MovementSelect()  # 关键：执行动作加载逻辑
+
+                    # 反馈成功信息
+                    self.command_socket.send_string(f"动作'{action_name}'加载成功")
+                    self.update_unity_status(
+                        current_action=action_name,
+                        feedback=f"动作'{action_name}'已加载"
+                    )
+
+                # 其他命令处理（保持不变）
+                elif message == "start_teaching":
                     self.Teaching()
                     self.command_socket.send_string("ok")
                 elif message == "record_start":
