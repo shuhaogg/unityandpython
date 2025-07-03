@@ -74,5 +74,10 @@ public class PythonStatusListener : MonoBehaviour
         public string motor_status;
         public string current_action;
         public string feedback;
+
+        // 新增字段（Python那边要一起加）
+        public string sEMG_status;
+        public string imu_status;
+        public string pressure_status;
     }
 }

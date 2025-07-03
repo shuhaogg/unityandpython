@@ -544,7 +544,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0025024414, y: 0}
+  m_AnchoredPosition: {x: -0.0024414062, y: 0}
   m_SizeDelta: {x: 70.01001, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &188754081
@@ -2785,7 +2785,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52995f016b7a4b7469638a53b991c316, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: StartMouse
 --- !u!224 &1012006266
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3394,8 +3393,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0010375977, y: 0.0008239746}
-  m_SizeDelta: {x: 480, y: 120}
+  m_AnchoredPosition: {x: 47, y: -24}
+  m_SizeDelta: {x: 1004.2446, y: 222.1796}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1280960288
 MonoBehaviour:
@@ -3419,11 +3418,11 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 46238fb1ad7a7a84ba8954c1c860994c, type: 3}
-    m_FontSize: 64
+    m_FontSize: 150
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 6
-    m_MaxSize: 64
+    m_MinSize: 0
+    m_MaxSize: 150
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1

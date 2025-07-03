@@ -806,7 +806,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchButton: {fileID: 1433587118}
-  targetSceneName: MainMenu
+  targetSceneName: New Scene-train-1
 --- !u!1 &1315087422
 GameObject:
   m_ObjectHideFlags: 0

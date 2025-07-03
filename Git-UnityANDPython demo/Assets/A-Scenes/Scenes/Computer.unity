@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -600,7 +599,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52995f016b7a4b7469638a53b991c316, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: Russia
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -854,7 +852,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52995f016b7a4b7469638a53b991c316, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: StartSnake
 --- !u!1 &1080744172
 GameObject:
   m_ObjectHideFlags: 0
@@ -1073,6 +1070,82 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1448160170}
   m_CullTransparentMesh: 1
+--- !u!1 &1680732687
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1680732689}
+  - component: {fileID: 1680732688}
+  - component: {fileID: 1680732690}
+  - component: {fileID: 1680732691}
+  m_Layer: 0
+  m_Name: UIManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1680732688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1680732687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 208ea217372730348aa3cab8475ef555, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  switchButton: {fileID: 2064779735}
+  targetSceneName: Mouse
+--- !u!4 &1680732689
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1680732687}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 63.04326, y: 33.660683, z: 90.686646}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1680732690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1680732687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 208ea217372730348aa3cab8475ef555, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  switchButton: {fileID: 1007664925}
+  targetSceneName: StartSnake
+--- !u!114 &1680732691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1680732687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 208ea217372730348aa3cab8475ef555, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  switchButton: {fileID: 2009536718}
+  targetSceneName: MainScene
 --- !u!1 &1769852070
 GameObject:
   m_ObjectHideFlags: 0
@@ -1204,7 +1277,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52995f016b7a4b7469638a53b991c316, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: Active Training
 --- !u!114 &2009536718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1311,7 +1383,6 @@ GameObject:
   - component: {fileID: 2064779737}
   - component: {fileID: 2064779736}
   - component: {fileID: 2064779735}
-  - component: {fileID: 2064779738}
   m_Layer: 5
   m_Name: "Button \uFF08Mouse)"
   m_TagString: Untagged
@@ -1382,19 +1453,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2064779736}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2064779738}
-        m_TargetAssemblyTypeName: ChangeScenes, Assembly-CSharp
-        m_MethodName: GoToNextScene
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: Active Training
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &2064779736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1433,19 +1492,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2064779733}
   m_CullTransparentMesh: 1
---- !u!114 &2064779738
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2064779733}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52995f016b7a4b7469638a53b991c316, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneName: Mouse
 --- !u!1 &2126976311
 GameObject:
   m_ObjectHideFlags: 0
@@ -1627,3 +1673,4 @@ SceneRoots:
   - {fileID: 705507995}
   - {fileID: 2126976315}
   - {fileID: 1080744175}
+  - {fileID: 1680732689}
