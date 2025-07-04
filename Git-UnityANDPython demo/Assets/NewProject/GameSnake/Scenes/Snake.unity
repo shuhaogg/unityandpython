@@ -1277,7 +1277,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 18.26, y: 0.010048}
+  m_AnchoredPosition: {x: 18.26001, y: 0.010048}
   m_SizeDelta: {x: 36.52, y: 1070}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1205226770
@@ -1556,7 +1556,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1999232140}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ChangeScenes, Assembly-CSharp
         m_MethodName: GoToNextScene
         m_Mode: 1
@@ -2069,7 +2069,6 @@ GameObject:
   - component: {fileID: 1999232138}
   - component: {fileID: 1999232137}
   - component: {fileID: 1999232139}
-  - component: {fileID: 1999232140}
   m_Layer: 0
   m_Name: ScriptsHolder
   m_TagString: Untagged
@@ -2144,19 +2143,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: deb918b9b3aa2e24f969108ef9ce6e32, type: 3}
   - {fileID: 21300000, guid: e4f0e9d913a79b54f9675dc89f2ab870, type: 3}
   bgImage: {fileID: 704204693}
---- !u!114 &1999232140
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1999232136}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52995f016b7a4b7469638a53b991c316, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneName: StartSnake
 --- !u!1001 &2036644993
 PrefabInstance:
   m_ObjectHideFlags: 0

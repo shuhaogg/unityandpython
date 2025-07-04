@@ -317,43 +317,56 @@ class MyWindow(QMainWindow):
                     pass  # 防止双重异常
 
     """新增结合示教模式和游戏控制的主函数"""
+
     def run_game_with_teaching(self, game_type):
+        """结合示教模式和游戏控制的主函数"""
         try:
-            # 启动示教模式
-            self.Teaching()  # 调用原有的Teaching方法
+            # 启动示教模式（仅初始化，不启动循环）
+            self.Teaching()
+
             # 根据游戏类型设置不同的处理逻辑
             if game_type == "snake":
+                self.current_game = "snake"
                 self.run_snake_logic()
             elif game_type == "mole":
+                self.current_game = "mole"
                 self.run_mole_logic()
+
         except Exception as e:
             print(f"游戏运行异常: {e}")
             self.update_unity_status(feedback=f"游戏异常: {str(e)}")
             self.motor_running = False
+            self.teaching_active = False
 
-    """新增贪吃蛇游戏控制逻辑"""
     def run_snake_logic(self):
+        """贪吃蛇游戏控制逻辑（修正方向映射）"""
         print("[游戏] 启动贪吃蛇控制逻辑")
         prev_pos = None
         last_sent = None
-        threshold = 0.1  # 最小移动阈值
+        threshold = 0.1
+
+        # 启动电机循环
+        self.motor_running = True
+
         while self.motor_running and self.current_game == "snake":
             try:
                 # ① 从 PLC 读出四个电机的累计步数
                 actpos_counts = self.plc.read_by_name(
                     'GVL.ax_actpos', pyads.PLCTYPE_ARR_LREAL(4)
                 )
+
                 # ② 步数→弧度 换算
                 joint_angles = fk.counts_array_to_angles(actpos_counts)
+
                 # ③ 正运动学计算
                 current_pos = fk.forward_kinematics(joint_angles)
+
                 # ④ 判断方向、去抖，并通过 ZeroMQ 发出 “W/A/S/D”
                 if prev_pos is not None:
-                    dx = current_pos[0] - prev_pos[0]
-                    dy = current_pos[1] - prev_pos[1]
+                    dx = current_pos[0] - prev_pos[0]  # x轴变化（左右）
+                    dy = current_pos[1] - prev_pos[1]  # y轴变化（上下）
                     direction = None
 
-                    # 根据运动方向决定贪吃蛇移动方向
                     if abs(dx) > abs(dy) and abs(dx) > threshold:
                         direction = "D" if dx > 0 else "A"  # 右/左
                     elif abs(dy) > threshold:
@@ -361,7 +374,7 @@ class MyWindow(QMainWindow):
 
                     if direction and direction != last_sent:
                         self.zmq_socket.send_string(direction)
-                        print(f"[贪吃蛇] 发送方向: {direction}")
+                        print(f"[贪吃蛇] 发送方向: {direction} (dx={dx:.2f}, dy={dy:.2f})")
                         last_sent = direction
 
                 prev_pos = current_pos
@@ -369,11 +382,18 @@ class MyWindow(QMainWindow):
             except Exception as e:
                 print("贪吃蛇控制逻辑出错：", e)
 
-            time.sleep(0.1)  # 控制发送频率
+            time.sleep(0.1)
+        # 游戏结束，重置状态
+        self.motor_running = False
+        self.current_game = None
+        self.teaching_active = False
 
-    """新增打地鼠游戏控制逻辑"""
     def run_mole_logic(self):
+        """打地鼠游戏控制逻辑"""
         print("[游戏] 启动打地鼠控制逻辑")
+
+        # 启动电机循环
+        self.motor_running = True
 
         while self.motor_running and self.current_game == "mole":
             try:
@@ -399,7 +419,13 @@ class MyWindow(QMainWindow):
 
             except Exception as e:
                 print("打地鼠控制逻辑出错：", e)
-            time.sleep(0.1)  # 控制发送频率
+
+            time.sleep(0.1)
+
+        # 游戏结束，重置状态
+        self.motor_running = False
+        self.current_game = None
+        self.teaching_active = False
 
     # 新增connect_sensors_from_unity
     def connect_sensors_from_unity(self, sensors):
@@ -651,14 +677,17 @@ class MyWindow(QMainWindow):
 
     # 运动示教
     def Teaching(self):
+        # 初始化示教模式（设置力矩、状态和摩擦补偿）
         self.SetTor()
         self.plc.write_by_name('MAIN_Motion_Control.ax_state', 40)
         self.plc.write_by_name('MAIN_Motion_Control.Fric_Compen_En', True)
         self.update_status(self.passive_show, '重力摩擦力补偿完成', 'orange')
 
-        # 发送状态信息
+        # 发送状态信息到Unity
         self.update_unity_status(feedback="重力摩擦力补偿完成")
 
+        # 标记示教模式已启动
+        self.teaching_active = True
         # time.sleep(1)
         ## —— 新增：启动后台“电机循环” —— #
     #     if not self.motor_running:
@@ -952,9 +981,9 @@ class MyWindow(QMainWindow):
         print('电机链接成功')
 
         # 新增
-        prev_pos = None
-        last_sent = None
-        threshold = 0.1  # 阈值：0.1 米
+        # prev_pos = None
+        # last_sent = None
+        # threshold = 0.1  # 阈值：0.1 米
 
         while self.motor_connect:
             try:

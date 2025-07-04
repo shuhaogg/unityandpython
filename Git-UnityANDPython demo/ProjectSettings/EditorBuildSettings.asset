@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/A-Scenes/1-login.unity
     guid: 680c2253bd88f1a4294cdcbb5bc5ddde
   - enabled: 1
+    path: Assets/A-Scenes/Scenes/Computer.unity
+    guid: fd256a94ce2aa234ea740b659c36dc4e
+  - enabled: 0
     path: Assets/A-Scenes/Graph.unity
     guid: 09683efeb82205149813d2cae06c60ec
   - enabled: 1
@@ -32,9 +35,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/NewProject/GameSnake/Scenes/Snake.unity
     guid: 2b3336d933c5b504dac87d8f962b088a
-  - enabled: 1
-    path: Assets/A-Scenes/Scenes/Computer.unity
-    guid: fd256a94ce2aa234ea740b659c36dc4e
   - enabled: 1
     path: Assets/A-Scenes/Scenes/Main Menu.unity
     guid: c4fa4c0a894a06642ad6bb7a9348b61a
