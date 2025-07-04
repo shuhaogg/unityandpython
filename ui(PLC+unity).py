@@ -180,9 +180,27 @@ class MyWindow(QMainWindow):
             try:
                 message = self.command_socket.recv_string()
                 print(f"[ZMQ] 收到Unity命令: {message}")
+                # 处理游戏启动命令
+                if message.startswith("start_game:"):
+                    game_type = message.split(":")[1].strip()
+                    print(f"[Unity] 请求启动游戏: {game_type}")
+                    # 更新Unity状态
+                    self.update_unity_status(feedback=f"正在启动{game_type}游戏...")
+                    # 根据选择启动相应游戏（结合示教模式）
+                    if game_type == "snake":
+                        self.current_game = "snake"
+                        self.executor.submit(self.run_game_with_teaching, game_type)
+                    elif game_type == "mole":
+                        self.current_game = "mole"
+                        self.executor.submit(self.run_game_with_teaching, game_type)
+                    else:
+                        self.command_socket.send_string("unknown_game")
+                        self.update_unity_status(feedback=f"未知游戏类型: {game_type}")
+                        continue
+                    self.command_socket.send_string("ok")
 
                 # 处理Unity发送的动作选择命令（核心修改）
-                if message.startswith("select_action:"):
+                elif message.startswith("select_action:"):
                     # 从命令中提取动作名称（如"movement2"）
                     action_name = message.split(":")[1].strip()
                     print(f"[Unity] 选择的动作名称: {action_name}")
@@ -298,6 +316,91 @@ class MyWindow(QMainWindow):
                 except:
                     pass  # 防止双重异常
 
+    """新增结合示教模式和游戏控制的主函数"""
+    def run_game_with_teaching(self, game_type):
+        try:
+            # 启动示教模式
+            self.Teaching()  # 调用原有的Teaching方法
+            # 根据游戏类型设置不同的处理逻辑
+            if game_type == "snake":
+                self.run_snake_logic()
+            elif game_type == "mole":
+                self.run_mole_logic()
+        except Exception as e:
+            print(f"游戏运行异常: {e}")
+            self.update_unity_status(feedback=f"游戏异常: {str(e)}")
+            self.motor_running = False
+
+    """新增贪吃蛇游戏控制逻辑"""
+    def run_snake_logic(self):
+        print("[游戏] 启动贪吃蛇控制逻辑")
+        prev_pos = None
+        last_sent = None
+        threshold = 0.1  # 最小移动阈值
+        while self.motor_running and self.current_game == "snake":
+            try:
+                # ① 从 PLC 读出四个电机的累计步数
+                actpos_counts = self.plc.read_by_name(
+                    'GVL.ax_actpos', pyads.PLCTYPE_ARR_LREAL(4)
+                )
+                # ② 步数→弧度 换算
+                joint_angles = fk.counts_array_to_angles(actpos_counts)
+                # ③ 正运动学计算
+                current_pos = fk.forward_kinematics(joint_angles)
+                # ④ 判断方向、去抖，并通过 ZeroMQ 发出 “W/A/S/D”
+                if prev_pos is not None:
+                    dx = current_pos[0] - prev_pos[0]
+                    dy = current_pos[1] - prev_pos[1]
+                    direction = None
+
+                    # 根据运动方向决定贪吃蛇移动方向
+                    if abs(dx) > abs(dy) and abs(dx) > threshold:
+                        direction = "D" if dx > 0 else "A"  # 右/左
+                    elif abs(dy) > threshold:
+                        direction = "W" if dy > 0 else "S"  # 上/下
+
+                    if direction and direction != last_sent:
+                        self.zmq_socket.send_string(direction)
+                        print(f"[贪吃蛇] 发送方向: {direction}")
+                        last_sent = direction
+
+                prev_pos = current_pos
+
+            except Exception as e:
+                print("贪吃蛇控制逻辑出错：", e)
+
+            time.sleep(0.1)  # 控制发送频率
+
+    """新增打地鼠游戏控制逻辑"""
+    def run_mole_logic(self):
+        print("[游戏] 启动打地鼠控制逻辑")
+
+        while self.motor_running and self.current_game == "mole":
+            try:
+                # ① 从 PLC 读出四个电机的累计步数
+                actpos_counts = self.plc.read_by_name(
+                    'GVL.ax_actpos', pyads.PLCTYPE_ARR_LREAL(4)
+                )
+
+                # ② 步数→弧度 换算
+                joint_angles = fk.counts_array_to_angles(actpos_counts)
+
+                # ③ 正运动学计算
+                current_pos = fk.forward_kinematics(joint_angles)
+
+                # ④ 发送坐标信息到Unity
+                msg = json.dumps({
+                    'x': float(current_pos[0]),
+                    'y': float(current_pos[1]),
+                    'z': float(current_pos[2])
+                })
+                self.zmq_socket.send_string(msg)
+                print(f"[打地鼠] 发送坐标: ({current_pos[0]:.2f}, {current_pos[1]:.2f}, {current_pos[2]:.2f})")
+
+            except Exception as e:
+                print("打地鼠控制逻辑出错：", e)
+            time.sleep(0.1)  # 控制发送频率
+
     # 新增connect_sensors_from_unity
     def connect_sensors_from_unity(self, sensors):
         """从Unity命令连接指定的传感器"""
@@ -311,19 +414,15 @@ class MyWindow(QMainWindow):
                 self.dev_status[2] = True  # 假设索引2是姿态传感器
             if "pressure" in sensors:
                 self.dev_status[1] = True  # 假设索引1是压力传感器（根据实际调整）
-
             # 3. 调用原有的设备连接逻辑
             asyncio.run(self.dev_select())  # 重新连接设备
-
             # 4. 向Unity发送各传感器的最终状态
             if "emg" in sensors:
                 status = "已连接" if self.sEMG_dev.connect else "连接失败"
                 self.zmq_socket.send_string(f"emg:{status}")  # 格式："emg:已连接"
-
             if "imu" in sensors:
                 status = "已连接" if (self.IMU1_dev.connect and self.IMU2_dev.connect) else "连接失败"
                 self.zmq_socket.send_string(f"imu:{status}")
-
             if "pressure" in sensors:
                 # 假设压力传感器的连接状态判断
                 status = "已连接" if self.pressure_dev.connect else "连接失败"
@@ -560,61 +659,61 @@ class MyWindow(QMainWindow):
         # 发送状态信息
         self.update_unity_status(feedback="重力摩擦力补偿完成")
 
-        time.sleep(1)
+        # time.sleep(1)
         ## —— 新增：启动后台“电机循环” —— #
-        if not self.motor_running:
-            self.motor_running = True
-            self.executor.submit(self.motor_loop)
-            self.update_status(self.passive_show, '开始运动示教 (随机角度)', 'green')
-        #self.update_status(self.passive_show, '可进行自由运动', 'orange')
-
-    def motor_loop(self):
-        prev_pos = None
-        last_sent = None
-        threshold = 0.1
-
-        while self.motor_running:
-            try:
-                # ① 从 PLC 读出四个电机的累计步数（或当前角度计数值）
-                actpos_counts = self.plc.read_by_name(
-                    'GVL.ax_actpos', pyads.PLCTYPE_ARR_LREAL(4)
-                )
-
-                # ② “步数→弧度” 的换算
-                #    你需要在 device/fk.py 里实现一个 counts_array_to_angles 函数，
-                #    它接收一个 4 元组的“步数”或“脉冲数”，返回 4 个关节角度（弧度）。
-                joint_angles = fk.counts_array_to_angles(actpos_counts)
-
-                # ③ 正运动学：计算末端执行器位置
-                current_pos = fk.forward_kinematics(joint_angles)
-
-                # ④ (贪吃蛇)判断方向、去抖，并通过 ZeroMQ 发出 “W/A/S/D”
-                # if prev_pos is not None:
-                #     dx = current_pos[0] - prev_pos[0]
-                #     dy = current_pos[1] - prev_pos[1]
-                #     direction = None
-                #     if abs(dx) > abs(dy) and abs(dx) > threshold:
-                #         direction = "D" if dx > 0 else "A"
-                #     elif abs(dy) > threshold:
-                #         direction = "W" if dy > 0 else "S"
-                #     if direction and direction != last_sent:
-                #         self.zmq_socket.send_string(direction)
-                #         print(f"[真实] send: {direction}")
-                #         last_sent = direction
-                #
-                # prev_pos = current_pos
-                # ④（打地鼠） 直接发送坐标
-                msg = json.dumps({
-                    'x': float(current_pos[0]),
-                    'y': float(current_pos[1]),
-                    'z': float(current_pos[2])
-                })
-                self.zmq_socket.send_string(msg)
-
-            except Exception as e:
-                print("motor_loop 出错：", e)
-
-            time.sleep(0.1)
+    #     if not self.motor_running:
+    #         self.motor_running = True
+    #         self.executor.submit(self.motor_loop)
+    #         self.update_status(self.passive_show, '开始运动示教 (随机角度)', 'green')
+    #     #self.update_status(self.passive_show, '可进行自由运动', 'orange')
+    #
+    # def motor_loop(self):
+    #     prev_pos = None
+    #     last_sent = None
+    #     threshold = 0.1
+    #
+    #     while self.motor_running:
+    #         try:
+    #             # ① 从 PLC 读出四个电机的累计步数（或当前角度计数值）
+    #             actpos_counts = self.plc.read_by_name(
+    #                 'GVL.ax_actpos', pyads.PLCTYPE_ARR_LREAL(4)
+    #             )
+    #
+    #             # ② “步数→弧度” 的换算
+    #             #    你需要在 device/fk.py 里实现一个 counts_array_to_angles 函数，
+    #             #    它接收一个 4 元组的“步数”或“脉冲数”，返回 4 个关节角度（弧度）。
+    #             joint_angles = fk.counts_array_to_angles(actpos_counts)
+    #
+    #             # ③ 正运动学：计算末端执行器位置
+    #             current_pos = fk.forward_kinematics(joint_angles)
+    #
+    #             # ④ (贪吃蛇)判断方向、去抖，并通过 ZeroMQ 发出 “W/A/S/D”
+    #             # if prev_pos is not None:
+    #             #     dx = current_pos[0] - prev_pos[0]
+    #             #     dy = current_pos[1] - prev_pos[1]
+    #             #     direction = None
+    #             #     if abs(dx) > abs(dy) and abs(dx) > threshold:
+    #             #         direction = "D" if dx > 0 else "A"
+    #             #     elif abs(dy) > threshold:
+    #             #         direction = "W" if dy > 0 else "S"
+    #             #     if direction and direction != last_sent:
+    #             #         self.zmq_socket.send_string(direction)
+    #             #         print(f"[真实] send: {direction}")
+    #             #         last_sent = direction
+    #             #
+    #             # prev_pos = current_pos
+    #             # ④（打地鼠） 直接发送坐标
+    #             msg = json.dumps({
+    #                 'x': float(current_pos[0]),
+    #                 'y': float(current_pos[1]),
+    #                 'z': float(current_pos[2])
+    #             })
+    #             self.zmq_socket.send_string(msg)
+    #
+    #         except Exception as e:
+    #             print("motor_loop 出错：", e)
+    #
+    #         time.sleep(0.1)
 
     # 示教结束 并写入文件
     def TrainRecordEnd(self):
