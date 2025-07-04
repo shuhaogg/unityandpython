@@ -176,8 +176,10 @@ class MyWindow(QMainWindow):
     #新增新方法监听unity
     def listen_for_unity_command(self):
         print("[ZMQ] 命令接收线程已启动")
-        while True:
+        while self.motor_running:  # 使用类属性作为循环条件
             try:
+                if self.command_socket.poll(timeout=1000) == 0:
+                    continue
                 message = self.command_socket.recv_string()
                 print(f"[ZMQ] 收到Unity命令: {message}")
                 # 处理游戏启动命令
@@ -235,10 +237,8 @@ class MyWindow(QMainWindow):
                             if self.movement.itemText(i) == action_name:
                                 self.movement.setCurrentIndex(i)
                                 break
-
                     # ③ 调用MovementSelect方法，加载动作数据
                     self.MovementSelect()  # 关键：执行动作加载逻辑
-
                     # 反馈成功信息
                     self.command_socket.send_string(f"动作'{action_name}'加载成功")
                     self.update_unity_status(
@@ -247,34 +247,39 @@ class MyWindow(QMainWindow):
                     )
 
                 elif message.startswith("select_sensor:"):
-                    # 格式：select_sensor:类型:是否选择（如"select_sensor:emg:True"）
                     parts = message.split(":")
                     if len(parts) == 3:
                         sensor_type = parts[1]
                         is_selected = parts[2].lower() == "true"
-                        # 更新Python端的传感器选择状态（模拟UI复选框）
+                        # 更新Python端的传感器选择状态和UI复选框
                         if sensor_type == "emg":
                             self.select_sEMG.setChecked(is_selected)
+                            self.dev_status[0] = is_selected  # 更新状态数组
+                            status_text = "已选择" if is_selected else "未连接"
+                            self.update_status(self.sEMG_show, status_text,
+                                               "yellow" if is_selected else "red")
                         elif sensor_type == "imu":
                             self.select_imu.setChecked(is_selected)
-                        elif sensor_type == "pressure":
-                            # 假设压力传感器对应某个复选框
-                            # self.select_pressure.setChecked(is_selected)
-                            pass
-
+                            self.dev_status[2] = is_selected
+                            status_text = "已选择" if is_selected else "未连接"
+                            self.update_status(self.imu_show, status_text,
+                                               "yellow" if is_selected else "red")
+                        elif sensor_type == "my2901":  # 修改为my2901
+                            self.select_my2901.setChecked(is_selected)
+                            self.dev_status[1] = is_selected  # 压力传感器对应索引1
+                            status_text = "已选择" if is_selected else "未连接"
+                            self.update_status(self.my2901_show, status_text,
+                                               "yellow" if is_selected else "red")
+                        # 发送确认消息给Unity
                         self.command_socket.send_string("ok")
-
                     # 处理传感器连接命令
                 elif message.startswith("connect:"):
-                    # 解析要连接的传感器列表（如"connect:emg,imu"）
                     sensors = message.split(":")[1].split(",") if len(message.split(":")) > 1 else []
                     print(f"[Unity] 连接传感器: {sensors}")
-
                     # 调用设备连接方法
                     self.executor.submit(self.connect_sensors_from_unity, sensors)
                     self.command_socket.send_string("连接中...")
 
-                # 其他命令处理（保持不变）
                 elif message == "start_teaching":
                     self.Teaching()
                     self.command_socket.send_string("ok")
@@ -432,14 +437,17 @@ class MyWindow(QMainWindow):
         """从Unity命令连接指定的传感器"""
         try:
             # 1. 重置所有传感器状态
-            self.dev_status = [False, False, False, False, False]  # 按实际传感器数量调整
+            self.dev_status = [False, False, False, False, False]
             # 2. 根据Unity命令设置要连接的传感器
             if "emg" in sensors:
-                self.dev_status[0] = True  # 假设索引0是肌电传感器
+                self.dev_status[0] = True
+                self.select_sEMG.setChecked(True)  # 更新UI复选框
+            if "my2901" in sensors:  # 修改为my2901
+                self.dev_status[1] = True
+                self.select_my2901.setChecked(True)  # 更新UI复选框
             if "imu" in sensors:
-                self.dev_status[2] = True  # 假设索引2是姿态传感器
-            if "pressure" in sensors:
-                self.dev_status[1] = True  # 假设索引1是压力传感器（根据实际调整）
+                self.dev_status[2] = True
+                self.select_imu.setChecked(True)  # 更新UI复选框
             # 3. 调用原有的设备连接逻辑
             asyncio.run(self.dev_select())  # 重新连接设备
             # 4. 向Unity发送各传感器的最终状态
@@ -460,7 +468,6 @@ class MyWindow(QMainWindow):
                 for i in range(len(self.dev_status))
             ])
             self.zmq_socket.send_string(f"connection:{'全部已连接' if all_connected else '部分失败'}")
-
         except Exception as e:
             print(f"传感器连接错误: {e}")
             self.zmq_socket.send_string(f"connection:连接错误: {str(e)}")

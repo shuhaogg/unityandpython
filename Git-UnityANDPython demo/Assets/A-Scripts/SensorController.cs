@@ -18,7 +18,7 @@ public class SensorController : MonoBehaviour
     private bool isPressureSelected = false;
 
     // ZMQ通信相关
-    private RequestSocket clientSocket;
+    private DealerSocket clientSocket;  // 使用Dealer套接字替代Request
     private SubscriberSocket subSocket;
     private Thread receiveThread;
     private bool isRunning = true;
@@ -39,14 +39,11 @@ public class SensorController : MonoBehaviour
 
     void OnDestroy()
     {
-        // 确保在场景销毁时停止所有线程和清理资源
-        StopAllCoroutines();
         CleanupZMQ();
     }
 
     void OnApplicationQuit()
     {
-        // 在应用程序退出时执行清理
         CleanupZMQ();
     }
 
@@ -55,8 +52,8 @@ public class SensorController : MonoBehaviour
     {
         try
         {
-            // 初始化NetMQ环境
-            clientSocket = new RequestSocket();
+            // 使用Dealer套接字替代Request
+            clientSocket = new DealerSocket();
             clientSocket.Connect(RequestAddress);
 
             subSocket = new SubscriberSocket();
@@ -79,10 +76,8 @@ public class SensorController : MonoBehaviour
     {
         try
         {
-            // 停止接收线程
             isRunning = false;
 
-            // 关闭套接字
             if (clientSocket != null)
             {
                 clientSocket.Close();
@@ -95,10 +90,9 @@ public class SensorController : MonoBehaviour
                 subSocket = null;
             }
 
-            // 等待线程结束（设置超时避免永久等待）
             if (receiveThread != null && receiveThread.IsAlive)
             {
-                if (!receiveThread.Join(2000))  // 等待2秒
+                if (!receiveThread.Join(2000))
                 {
                     Debug.LogWarning("接收线程未能及时退出，强制终止");
                     receiveThread.Abort();
@@ -106,9 +100,7 @@ public class SensorController : MonoBehaviour
                 receiveThread = null;
             }
 
-            // 清理NetMQ资源
             NetMQConfig.Cleanup(false);
-            Debug.Log("ZMQ资源已清理");
         }
         catch (System.Exception e)
         {
@@ -116,7 +108,7 @@ public class SensorController : MonoBehaviour
         }
     }
 
-    // 接收状态更新（改进异常处理）
+    // 接收状态更新
     private void ReceiveStatusUpdates()
     {
         try
@@ -130,21 +122,25 @@ public class SensorController : MonoBehaviour
                     Debug.Log($"[ZMQ接收] 主题: {topic}, 消息: {message}");
                     ProcessSensorStatus(message);
                 }
-                else
+
+                // 检查是否有来自Python的回复
+                string response;
+                while (clientSocket.TryReceiveFrameString(out response))
                 {
-                    // 短暂休眠避免CPU占用过高
-                    Thread.Sleep(100);
+                    Debug.Log($"[ZMQ回复] {response}");
+                    // 这里可以处理回复，但由于是非阻塞的，我们可能不需要立即处理
                 }
+
+                Thread.Sleep(100);
             }
         }
         catch (ThreadAbortException)
         {
-            // 线程被中止，正常退出
             Debug.Log("接收线程已中止");
         }
         catch (System.Exception e)
         {
-            if (isRunning)  // 只在运行时记录错误
+            if (isRunning)
                 Debug.LogError($"接收线程异常: {e.Message}");
         }
         finally
@@ -156,7 +152,6 @@ public class SensorController : MonoBehaviour
     // 处理传感器状态消息
     private void ProcessSensorStatus(string message)
     {
-        // 消息格式："sensor_type:status"（如"emg:已连接"）
         if (message.Contains(":"))
         {
             string[] parts = message.Split(':');
@@ -165,7 +160,6 @@ public class SensorController : MonoBehaviour
                 string sensorType = parts[0].Trim();
                 string status = parts[1].Trim();
 
-                // 在主线程更新UI（修改为正确的属性调用方式）
                 if (UnityMainThreadDispatcher.Instance != null)
                 {
                     UnityMainThreadDispatcher.Instance.Enqueue(() =>
@@ -216,7 +210,7 @@ public class SensorController : MonoBehaviour
         }
     }
 
-    // 发送命令到Python（修改超时处理方式）
+    // 发送命令到Python（修改为非阻塞方式）
     private void SendCommandToPython(string command)
     {
         try
@@ -224,21 +218,7 @@ public class SensorController : MonoBehaviour
             Debug.Log($"[ZMQ发送] 命令: {command}");
             clientSocket.SendFrame(command);
 
-            // 等待Python回复（修改为无超时参数的重载）
-            string response;
-            if (clientSocket.TryReceiveFrameString(out response))
-            {
-                Debug.Log($"[ZMQ回复] {response}");
-                if (response == "error")
-                {
-                    UpdateStatusText(connectionStatusText, "命令执行失败", Color.red);
-                }
-            }
-            else
-            {
-                Debug.LogError("发送命令后未收到回复");
-                UpdateStatusText(connectionStatusText, "无响应", Color.red);
-            }
+            // 不再立即接收响应，由ReceiveStatusUpdates线程处理
         }
         catch (System.Exception e)
         {
@@ -252,7 +232,6 @@ public class SensorController : MonoBehaviour
     {
         isEMGSelected = !isEMGSelected;
         UpdateSensorStatus("emg", isEMGSelected ? "已选择" : "未连接");
-        // 可选：实时通知Python选择状态
         SendCommandToPython($"select_sensor:emg:{isEMGSelected}");
     }
 
@@ -267,19 +246,18 @@ public class SensorController : MonoBehaviour
     {
         isPressureSelected = !isPressureSelected;
         UpdateSensorStatus("pressure", isPressureSelected ? "已选择" : "未连接");
-        SendCommandToPython($"select_sensor:pressure:{isPressureSelected}");
+        // 修改传感器名称为my2901，与Python端保持一致
+        SendCommandToPython($"select_sensor:my2901:{isPressureSelected}");
     }
 
     // 连接设备按钮
     public void ConnectDevices()
     {
-        // 构建命令：connect:emg,imu,pressure（仅包含已选择的传感器）
         string command = "connect:";
         if (isEMGSelected) command += "emg,";
         if (isIMUSelected) command += "imu,";
         if (isPressureSelected) command += "pressure,";
 
-        // 移除末尾逗号
         if (command.EndsWith(","))
             command = command.Substring(0, command.Length - 1);
 

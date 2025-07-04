@@ -62,4 +62,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/A-Scenes/New Scene-train-1.unity
     guid: 5a579f26af06e27499891f223e1c8d61
+  - enabled: 1
+    path: Assets/A-Scenes/New Scene-train-2.unity
+    guid: f13b3618e9c1c3f4f8254319ad7700e0
   m_configObjects: {}

@@ -10760,6 +10760,52 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8407946972163067645, guid: 92101ed146e7f434cb43a3680c518e75, type: 3}
   m_PrefabInstance: {fileID: 542490524}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &542801280
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 542801282}
+  - component: {fileID: 542801281}
+  m_Layer: 0
+  m_Name: UImanager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &542801281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 542801280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 208ea217372730348aa3cab8475ef555, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  switchButton: {fileID: 1761417975}
+  targetSceneName: New Scene-train-2
+--- !u!4 &542801282
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 542801280}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1873.4497, y: 803.887, z: 16.411816}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &547867167
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -39310,3 +39356,4 @@ SceneRoots:
   - {fileID: 1559906967}
   - {fileID: 162499239}
   - {fileID: 583345625}
+  - {fileID: 542801282}
