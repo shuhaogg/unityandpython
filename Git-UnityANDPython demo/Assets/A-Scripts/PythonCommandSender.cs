@@ -52,28 +52,7 @@ public class PythonCommandSender : MonoBehaviour
     {
         SendCommandToPython("start_passive_training");
     }
-    public void ConnectSelectedSensors(bool sEMG, bool imu, bool pressure)
-    {
-        SensorCommand cmd = new SensorCommand()
-        {
-            connect_sEMG = sEMG,
-            connect_IMU = imu,
-            connect_Pressure = pressure
-        };
-
-        string json = JsonUtility.ToJson(cmd);
-        SendCommandToPython(json); // 复用现有请求逻辑
-    }
-
-    // 数据结构
-    [System.Serializable]
-    public class SensorCommand
-    {
-        public bool connect_sEMG;
-        public bool connect_IMU;
-        public bool connect_Pressure;
-    }
-
+   
     private void SendCommandToPython(string command)
     {
         try

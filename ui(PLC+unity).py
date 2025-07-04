@@ -176,10 +176,8 @@ class MyWindow(QMainWindow):
     #新增新方法监听unity
     def listen_for_unity_command(self):
         print("[ZMQ] 命令接收线程已启动")
-        while self.motor_running:  # 使用类属性作为循环条件
+        while True:
             try:
-                if self.command_socket.poll(timeout=1000) == 0:
-                    continue
                 message = self.command_socket.recv_string()
                 print(f"[ZMQ] 收到Unity命令: {message}")
                 # 处理游戏启动命令
@@ -220,7 +218,6 @@ class MyWindow(QMainWindow):
                         self.command_socket.send_string(error_msg)
                         self.update_unity_status(feedback=error_msg)
                         continue
-
                     # ② 手动设置当前选中的动作，模拟UI操作
                     # （根据当前Tab页，模拟用户在UI上选择了该动作）
                     if self.tabWidget.currentIndex() == 0:  # 被动训练Tab
@@ -372,10 +369,10 @@ class MyWindow(QMainWindow):
                     dy = current_pos[1] - prev_pos[1]  # y轴变化（上下）
                     direction = None
 
-                    if abs(dx) > abs(dy) and abs(dx) > threshold:
-                        direction = "D" if dx > 0 else "A"  # 右/左
-                    elif abs(dy) > threshold:
-                        direction = "W" if dy > 0 else "S"  # 上/下
+                    if abs(dy) > abs(dx) and abs(dy) > threshold:
+                        direction = "A" if dy > 0 else "D"  # 上/下
+                    elif abs(dx) > threshold:
+                        direction = "S" if dx > 0 else "W"  # 右/左
 
                     if direction and direction != last_sent:
                         self.zmq_socket.send_string(direction)
