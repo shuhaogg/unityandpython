@@ -1260,6 +1260,7 @@ GameObject:
   - component: {fileID: 1680732688}
   - component: {fileID: 1680732690}
   - component: {fileID: 1680732691}
+  - component: {fileID: 1680732692}
   m_Layer: 0
   m_Name: UIManager
   m_TagString: Untagged
@@ -1311,6 +1312,20 @@ MonoBehaviour:
   switchButton: {fileID: 1007664925}
   targetSceneName: StartSnake
 --- !u!114 &1680732691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1680732687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 208ea217372730348aa3cab8475ef555, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  switchButton: {fileID: 2009536718}
+  targetSceneName: MainScene
+--- !u!114 &1680732692
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1536,7 +1551,6 @@ GameObject:
   - component: {fileID: 2009536720}
   - component: {fileID: 2009536719}
   - component: {fileID: 2009536718}
-  - component: {fileID: 2009536717}
   m_Layer: 5
   m_Name: "Button \uFF08Quit)"
   m_TagString: Untagged
@@ -1564,18 +1578,6 @@ RectTransform:
   m_AnchoredPosition: {x: 443, y: 246}
   m_SizeDelta: {x: 80, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2009536717
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2009536715}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52995f016b7a4b7469638a53b991c316, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &2009536718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1620,7 +1622,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2009536717}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ChangeScenes, Assembly-CSharp
         m_MethodName: GoToNextScene
         m_Mode: 1
