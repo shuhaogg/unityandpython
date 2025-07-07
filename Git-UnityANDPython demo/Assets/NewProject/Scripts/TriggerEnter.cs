@@ -25,7 +25,7 @@ public class TriggerEnter : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.F))
                 {
-                    SceneManager.LoadScene("Resistance");
+                    SceneManager.LoadScene("Play demo");
                 }
             }
 
