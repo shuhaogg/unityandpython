@@ -15,7 +15,7 @@ public class SensorDataChart : MonoBehaviour
     private static CancellationTokenSource cts;
     private static Thread zmqThread;
     private static bool zmqInitialized = false;
-    private static string zmqAddress = "tcp://localhost:5555"; // 改为静态
+    private static string zmqAddress = "tcp://localhost:5559"; // 改为静态
 
     [Header("Channel Settings")]
     [SerializeField] private int channelIndex = 0;

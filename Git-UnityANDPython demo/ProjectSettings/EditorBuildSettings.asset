@@ -27,7 +27,7 @@ EditorBuildSettings:
     path: Assets/A-Scenes/IMU.unity
     guid: 50148d5ff9a92224c8d704c055bee1eb
   - enabled: 1
-    path: Assets/A-Scenes/Xchart-demo.unity
+    path: Assets/A-Scenes/My2901.unity
     guid: cd9561a9577ff4b40a31fa2d5e81c82f
   - enabled: 1
     path: Assets/A-Scenes/sEMG.unity
